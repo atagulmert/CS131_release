@@ -20,7 +20,7 @@ def load(image_path):
 
     ### YOUR CODE HERE
     # Use skimage io.imread
-    pass
+    out = io.imread(image_path)
     ### END YOUR CODE
 
     # Let's convert the image to be between the correct range.
@@ -45,7 +45,9 @@ def crop_image(image, start_row, start_col, num_rows, num_cols):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    rows = [start_row+num_rows,start_row]
+    cols = [start_col+num_cols,start_col]
+    out = image[min(rows):max(rows),min(cols):max(cols), :]
     ### END YOUR CODE
 
     return out
@@ -68,7 +70,7 @@ def dim_image(image):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = 0.5*(image**2)
     ### END YOUR CODE
 
     return out
@@ -96,7 +98,9 @@ def resize_image(input_image, output_rows, output_cols):
     #    > This should require two nested for loops!
 
     ### YOUR CODE HERE
-    pass
+    for i in range(0,output_rows):
+        for j in range(0,output_cols):
+            output_image[i,j,:] = input_image[int(i*(input_rows/output_rows)),int(j*(input_cols/output_cols)),:]
     ### END YOUR CODE
 
     # 3. Return the output image
@@ -119,7 +123,10 @@ def rotate2d(point, theta):
     # Reminder: np.cos() and np.sin() will be useful here!
 
     ## YOUR CODE HERE
-    pass
+    rx = np.cos(theta) * point[0] - np.sin(theta) * point[1]
+    ry = np.sin(theta) * point[0] + np.cos(theta) * point[1]
+    out = np.array([rx,ry])
+    return out
     ### END YOUR CODE
 
 
@@ -141,7 +148,16 @@ def rotate_image(input_image, theta):
     output_image = np.zeros_like(input_image)
 
     ## YOUR CODE HERE
-    pass
+    ox = int(input_rows / 2)
+    oy = int(input_cols / 2)
+    for i in range(input_rows):
+        for j in range(input_cols):
+            rx = ox + np.cos(-theta) * (i - ox) - np.sin(-theta) * (j - oy)
+            ry = oy + np.sin(-theta) * (i - ox) + np.cos(-theta) * (j - oy)
+            if (0 < rx < input_rows) and (0 < ry < input_cols):
+                output_image[int(rx),int(ry),:] = input_image[i,j,:]
+            else:
+                pass
     ### END YOUR CODE
 
     # 3. Return the output image
