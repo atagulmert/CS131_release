@@ -29,9 +29,12 @@ def conv_nested(image, kernel):
     out = np.zeros((Hi, Wi))
 
     ### YOUR CODE HERE
-    pass
+    for i in range(Hi-2):
+        for j in range(Wi-2):
+            for k in range(Hk):
+                for m in range(Wk):
+                    out[i,j] += kernel[k,m] * image[i+k-1,j+m-1]
     ### END YOUR CODE
-
     return out
 
 def zero_pad(image, pad_height, pad_width):
@@ -56,7 +59,11 @@ def zero_pad(image, pad_height, pad_width):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = np.zeros((H+2*pad_height,W+2*pad_width))
+    Ho, Wo = out.shape
+    for i,i2 in enumerate(range(0+pad_height,Ho-pad_height)):
+        for k,k2 in enumerate(range(0+pad_width,Wo-pad_width)):
+            out[i2,k2] = image[i,k]
     ### END YOUR CODE
     return out
 
@@ -85,7 +92,12 @@ def conv_fast(image, kernel):
     out = np.zeros((Hi, Wi))
 
     ### YOUR CODE HERE
-    pass
+    kernel = np.flip(kernel,axis=0)
+    #kernel = np.flip(kernel,axis=1)
+    padded_image = zero_pad(image,Hk//2,Wk//2)
+    for i in range(Hi):
+        for k in range(Wi):
+            out[i,k] = np.sum(padded_image[i:i+Hk,k:k+Wk]* kernel)
     ### END YOUR CODE
 
     return out
@@ -105,7 +117,7 @@ def cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    out = conv_fast(f,np.flip(g,axis=0))
     ### END YOUR CODE
 
     return out
@@ -127,7 +139,8 @@ def zero_mean_cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    g = g - g.mean()
+    out = conv_fast(f,np.flip(g,axis=0))
     ### END YOUR CODE
 
     return out
@@ -151,7 +164,18 @@ def normalized_cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    Hi, Wi = f.shape
+    Hk, Wk = g.shape
+    out = np.zeros((Hi, Wi))
+    padded_image = zero_pad(f,Hk//2,Wk//2)
+    for i in range(Hi):
+        for k in range(Wi):
+            image_patch = padded_image[i:i+Hk,k:k+Wk]
+            f_mean, f_std = image_patch.mean(), image_patch.std()
+            g_mean, g_std = g.mean(), g.std()
+            normalized_image = (image_patch - f_mean) / f_std
+            normalized_template = (g - g_mean) / g_std
+            out[i,k] = np.sum(normalized_image*normalized_template)
     ### END YOUR CODE
 
     return out
